@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const passport=require('passport');
 const { SECRET } = require("../config");
 const User = require("../models/User");
 
@@ -118,7 +119,15 @@ const validateEmail = async (email) => {
   return user ? false : true;
 };
 
+/**
+ * @DESC Passport middleware
+ */
+
+ const userAuth =passport.authenticate('jwt',{session:false});
+
+
 module.exports = {
+  userAuth,
   userRegister,
   userLogin,
 };

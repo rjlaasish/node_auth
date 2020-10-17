@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const bp = require("body-parser");
 const { success, error } = require("consola");
+const passport=require('passport');
+
 
 // Importing the constants
 const { DB, PORT } = require("./config");
@@ -13,6 +15,9 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(bp.json());
+app.use(passport.initialize());
+
+require('./middlewares/passport')(passport);
 
 // User router middleware
 app.use('/api/users',require('./routes/users'));
