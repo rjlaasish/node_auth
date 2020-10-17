@@ -1,6 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const passport=require('passport');
+const passport = require("passport");
 const { SECRET } = require("../config");
 const User = require("../models/User");
 
@@ -45,7 +45,7 @@ const userRegister = async (userDets, role, res) => {
 
     await newUser.save();
     return res.status(201).json({
-      message: "New user created",
+      message: `New ${role} created`,
       success: true,
     });
   } catch (err) {
@@ -71,7 +71,7 @@ const userLogin = async (userCreds, role, res) => {
   }
 
   //   if user found
-  if (role!=user.role) {
+  if (role != user.role) {
     return res
       .status(403)
       .json({ message: "Please make sure you are login from right portal." });
@@ -95,13 +95,13 @@ const userLogin = async (userCreds, role, res) => {
         username: user.username,
         role: user.role,
         email: user.email,
-        token:`Bearer ${token}`,
-        expiresIn:168 
+        token: `Bearer ${token}`,
+        expiresIn: 168,
       };
       return res.status(200).json({
         ...result,
-       message:"Sucessfully logged in",
-       success:true
+        message: "Sucessfully logged in",
+        success: true,
       });
     } else {
       res.status(403).json({ message: "Invalid Password!", success: false });
@@ -123,10 +123,40 @@ const validateEmail = async (email) => {
  * @DESC Passport middleware
  */
 
- const userAuth =passport.authenticate('jwt',{session:false});
+const userAuth = passport.authenticate("jwt", { session: false });
 
+/**
+ * @DESC Serialize user
+ */
+
+const serializeUser = (user) => {
+  return {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    username: user.username,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+};
+
+/**
+ * Check User role
+ */
+const checkRole = (role) => (req, res, next) => {
+  if (role.includes(req.user.role)) {
+    next();
+  } else {
+    res.status(500).json({
+      message: "Unauthorized",
+      success: false,
+    });
+  }
+};
 
 module.exports = {
+  checkRole,
+  serializeUser,
   userAuth,
   userRegister,
   userLogin,

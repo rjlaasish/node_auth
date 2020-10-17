@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { userRegister, userLogin, userAuth } = require("../utils/Auth");
+const { userRegister, userLogin, userAuth ,serializeUser,checkRole} = require("../utils/Auth");
 
 // User registration route
 router.post("/register-user", async (req, res) => {
@@ -37,17 +37,17 @@ router.post("/profile", userAuth, (req, res) => {
 });
 
 //User protected route
-router.post("/user-protected", userAuth, (req, res) => {
-  return res.send("user-protected");
+router.post("/user-protected", userAuth,checkRole(['user','admin','super-admin']), (req, res) => {
+  return res.send(serializeUser(req.user));
 });
 
 //Admin protected route
-router.post("/admin-protected", userAuth, (req, res) => {
+router.post("/admin-protected", userAuth,checkRole(['admin','super-admin']), (req, res) => {
   return res.send("admin-protected");
 });
 
 //Super-Admin protected route
-router.post("/super-admin-protected", userAuth, (req, res) => {
+router.post("/super-admin-protected", userAuth,checkRole(['super-admin']), (req, res) => {
   return res.send("super-admin-protected");
 });
 
